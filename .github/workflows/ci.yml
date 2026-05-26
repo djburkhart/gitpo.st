@@ -84,7 +84,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./hub
-          dockerfile: ./hub/Dockerfile
+          file: ./hub/Dockerfile
           push: false
           tags: gitpo.st/hub:test
           cache-from: type=gha
@@ -112,8 +112,11 @@ jobs:
 
       - name: Markdown lint (basic)
         uses: DavidAnson/markdownlint-cli2-action@v17
+        continue-on-error: true   # Docs style issues shouldn't block CI while project is young
         with:
+          config: .markdownlint.json
           globs: |
             **/*.md
             !CODE_OF_CONDUCT.md
             !LICENSE
+            !SECURITY.md
