@@ -83,7 +83,7 @@ export default function FileViewer({ params }: BlobPageProps) {
           <div className="text-xs text-zinc-500">42 lines • 1.2 KB • {language}</div>
         </div>
 
-        <div className="overflow-auto text-sm">
+        <div className="overflow-auto text-sm bg-zinc-50 dark:bg-zinc-950">
           {isMarkdown ? (
             <div className="p-6">
               <MarkdownRenderer>{content}</MarkdownRenderer>

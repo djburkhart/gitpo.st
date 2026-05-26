@@ -20,7 +20,7 @@ export function MarkdownRenderer({ children, className = '' }: MarkdownRendererP
   const codeTheme = isDark ? vscDarkPlus : vs
 
   return (
-    <div className={`prose prose-zinc dark:prose-invert max-w-none text-zinc-800 dark:text-zinc-200 prose-headings:font-semibold prose-headings:tracking-tight prose-h1:text-3xl prose-h1:mt-8 prose-h1:mb-4 prose-h2:text-2xl prose-h2:mt-6 prose-h2:mb-3 prose-h3:text-xl prose-h3:mt-5 prose-h3:mb-2 prose-p:my-3 prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:font-medium hover:prose-a:underline prose-strong:font-semibold prose-code:bg-zinc-100 dark:prose-code:bg-zinc-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-[13px] prose-code:before:content-[''] prose-code:after:content-[''] prose-pre:bg-zinc-50 dark:prose-pre:bg-zinc-900 prose-pre:border prose-pre:border-zinc-200 dark:prose-pre:border-white/10 prose-pre:rounded-lg prose-pre:p-0 prose-ul:my-3 prose-ol:my-3 prose-li:my-1 prose-blockquote:border-l-4 prose-blockquote:border-zinc-300 dark:prose-blockquote:border-white/20 prose-blockquote:pl-4 prose-blockquote:italic prose-table:border prose-table:border-zinc-200 dark:prose-table:border-white/10 ${className}`}>
+    <div className={`prose prose-zinc dark:prose-invert max-w-none text-zinc-800 dark:text-zinc-200 prose-headings:font-semibold prose-headings:tracking-tight prose-h1:text-3xl prose-h1:mt-8 prose-h1:mb-4 prose-h2:text-2xl prose-h2:mt-6 prose-h2:mb-3 prose-h3:text-xl prose-h3:mt-5 prose-h3:mb-2 prose-p:my-3 prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:font-medium hover:prose-a:underline prose-strong:font-semibold prose-code:bg-transparent prose-code:before:content-[''] prose-code:after:content-[''] prose-pre:bg-transparent prose-pre:p-0 prose-ul:my-3 prose-ol:my-3 prose-li:my-1 prose-blockquote:border-l-4 prose-blockquote:border-zinc-300 dark:prose-blockquote:border-white/20 prose-blockquote:pl-4 prose-blockquote:italic prose-table:border prose-table:border-zinc-200 dark:prose-table:border-white/10 ${className}`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
@@ -30,7 +30,7 @@ export function MarkdownRenderer({ children, className = '' }: MarkdownRendererP
 
             if (!inline && match) {
               return (
-                <div className="my-4 overflow-hidden rounded-lg border border-zinc-200 dark:border-white/10">
+                <div className="my-4 overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 shadow-sm">
                   <SyntaxHighlighter
                     language={language}
                     style={codeTheme}
@@ -38,6 +38,7 @@ export function MarkdownRenderer({ children, className = '' }: MarkdownRendererP
                       margin: 0,
                       borderRadius: 0,
                       fontSize: '13px',
+                      background: 'transparent',
                     }}
                     showLineNumbers
                     {...props}
@@ -48,10 +49,10 @@ export function MarkdownRenderer({ children, className = '' }: MarkdownRendererP
               )
             }
 
-            // Inline code
+            // Inline code - make it clearly stand out
             return (
               <code 
-                className="bg-zinc-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded font-mono text-[13px] text-zinc-800 dark:text-zinc-200" 
+                className="bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-1.5 py-0.5 rounded-md font-mono text-[13px] text-zinc-800 dark:text-zinc-200" 
                 {...props}
               >
                 {children}
