@@ -1,9 +1,14 @@
 'use client'
 
+'use client'
+
 import { use } from 'react'
 import { Heading } from '@/components/catalyst/heading'
 import { Badge } from '@/components/catalyst/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/catalyst/table'
+import Link from 'next/link'
+import { Button } from '@/components/catalyst/button'
+import { Edit2 } from 'lucide-react'
 
 interface PipelinesPageProps {
   params: Promise<{ name: string }>
@@ -20,8 +25,13 @@ export default function RepoPipelinesPage({ params }: PipelinesPageProps) {
 
   return (
     <div>
-      <div className="mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <Heading>Pipelines for {name}</Heading>
+        <Link href={`/pipelines/${name}/editor`}>
+          <Button plain size="sm">
+            <Edit2 className="size-4" /> Edit Pipeline Configuration
+          </Button>
+        </Link>
       </div>
 
       <Table>
