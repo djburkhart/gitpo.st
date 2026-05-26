@@ -83,7 +83,8 @@ jobs:
       - name: Build Docker image (hub)
         uses: docker/build-push-action@v6
         with:
-          context: ./docker/hub
+          context: ./hub
+          dockerfile: ./hub/Dockerfile
           push: false
           tags: gitpo.st/hub:test
           cache-from: type=gha
@@ -99,8 +100,11 @@ jobs:
 
       - name: Check for common issues
         run: |
-          # Ensure no obvious secrets slipped in (basic grep)
-          if grep -rE "(AKIA|ghp_|AIza|-----BEGIN (RSA|EC) PRIVATE KEY)" --include="*.tf" --include="*.yaml" --include="*.yml" --include="*.go" . ; then
+          # Basic secret scan - exclude .github (the patterns appear in this workflow)
+          # and common generated/vendor dirs
+          if grep -rE "(AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|AIza[0-9A-Za-z_-]{35}|-----BEGIN (RSA|EC|OPENSSH) PRIVATE KEY)" \
+             --include="*.tf" --include="*.yaml" --include="*.yml" --include="*.go" \
+             --exclude-dir=.git --exclude-dir=.github --exclude-dir=vendor . ; then
             echo "Possible secret found!"
             exit 1
           fi
