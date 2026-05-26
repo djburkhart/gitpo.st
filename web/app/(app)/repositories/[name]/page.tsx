@@ -1,25 +1,53 @@
 'use client'
 
-import { use } from 'react'
+import { use, useState } from 'react'
 import { Heading } from '@/components/catalyst/heading'
 import { Text } from '@/components/catalyst/text'
 import { Button } from '@/components/catalyst/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/catalyst/table'
 import { Badge } from '@/components/catalyst/badge'
-import { Folder, FileText, GitBranch } from 'lucide-react'
+import { Folder, FileText, GitBranch, ChevronRight, ChevronDown } from 'lucide-react'
 import Link from 'next/link'
 
 interface RepoPageProps {
   params: Promise<{ name: string }>
 }
 
-// Mock file tree
-const mockFiles = [
-  { name: '.github', type: 'folder', lastCommit: 'Update workflows', updated: '2h ago' },
-  { name: 'src', type: 'folder', lastCommit: 'Refactor auth module', updated: 'yesterday' },
+// Nested file tree structure for realistic browsing
+type FileNode = {
+  name: string
+  type: 'file' | 'folder'
+  lastCommit: string
+  updated: string
+  children?: FileNode[]
+}
+
+const fileTree: FileNode[] = [
+  {
+    name: '.github',
+    type: 'folder',
+    lastCommit: 'Update workflows',
+    updated: '2h ago',
+    children: [
+      { name: 'workflows', type: 'folder', lastCommit: 'CI improvements', updated: '2h ago' },
+      { name: 'dependabot.yml', type: 'file', lastCommit: 'Update dependencies', updated: '1d ago' },
+    ],
+  },
+  {
+    name: 'src',
+    type: 'folder',
+    lastCommit: 'Refactor auth module',
+    updated: 'yesterday',
+    children: [
+      { name: 'app', type: 'folder', lastCommit: 'Add new routes', updated: 'yesterday' },
+      { name: 'components', type: 'folder', lastCommit: 'UI updates', updated: '3d ago' },
+      { name: 'lib', type: 'folder', lastCommit: 'Add utils', updated: '1w ago' },
+    ],
+  },
   { name: 'README.md', type: 'file', lastCommit: 'Update installation steps', updated: '3d ago' },
   { name: 'package.json', type: 'file', lastCommit: 'Bump dependencies', updated: '1w ago' },
   { name: 'tsconfig.json', type: 'file', lastCommit: 'Initial commit', updated: '2w ago' },
+  { name: '.gitignore', type: 'file', lastCommit: 'Initial commit', updated: '2w ago' },
 ]
 
 const mockReadme = (repoName: string) => `# ${repoName}
@@ -61,44 +89,29 @@ export default function RepositoryPage({ params }: RepoPageProps) {
           <Button plain size="sm">Switch branch</Button>
         </div>
 
-        {/* File Browser */}
+        {/* File Browser - Improved Tree View */}
         <div className="rounded-xl border border-zinc-200 bg-white shadow-xs dark:border-white/10 dark:bg-zinc-900">
-          <div className="border-b border-zinc-200 px-4 py-3 dark:border-white/10">
-            <div className="flex items-center justify-between">
-              <div className="font-mono text-sm text-zinc-500 dark:text-zinc-400">
-                gitpo.st / {name} / <span className="text-zinc-950 dark:text-white">main</span>
-              </div>
-              <Button plain size="sm">Add file</Button>
+          {/* Breadcrumb + Actions */}
+          <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-white/10">
+            <div className="flex items-center gap-2 font-mono text-sm">
+              <span className="text-zinc-500 dark:text-zinc-400">gitpo.st / {name}</span>
+              <span className="text-zinc-400 dark:text-zinc-600">/</span>
+              <span className="text-zinc-950 dark:text-white">main</span>
             </div>
+            <Button plain size="sm">Add file</Button>
           </div>
 
-          <Table>
-            <TableBody>
-              {mockFiles.map((file, index) => (
-                <TableRow key={index} className="hover:bg-zinc-50 dark:hover:bg-white/5">
-                  <TableCell className="flex items-center gap-3 py-3">
-                    {file.type === 'folder' ? (
-                      <Folder className="size-5 text-amber-500" />
-                    ) : (
-                      <FileText className="size-5 text-zinc-400" />
-                    )}
-                    <Link 
-                      href={`/repositories/${name}/blob/main/${file.name}`} 
-                      className="font-medium text-zinc-950 hover:underline dark:text-white"
-                    >
-                      {file.name}
-                    </Link>
-                  </TableCell>
-                  <TableCell className="text-sm text-zinc-500 dark:text-zinc-400">
-                    {file.lastCommit}
-                  </TableCell>
-                  <TableCell className="text-right text-sm text-zinc-500 dark:text-zinc-400">
-                    {file.updated}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          {/* File Tree */}
+          <div className="divide-y divide-zinc-200 dark:divide-white/10">
+            {fileTree.map((node, index) => (
+              <FileTreeNode
+                key={index}
+                node={node}
+                repoName={name}
+                depth={0}
+              />
+            ))}
+          </div>
         </div>
 
         {/* README Preview */}
@@ -154,5 +167,75 @@ export default function RepositoryPage({ params }: RepoPageProps) {
         </div>
       </div>
     </div>
+  )
+}
+
+// Recursive File Tree Node Component
+function FileTreeNode({
+  node,
+  repoName,
+  depth = 0,
+}: {
+  node: FileNode
+  repoName: string
+  depth?: number
+}) {
+  const [isOpen, setIsOpen] = useState(depth < 1) // Auto-expand top level
+
+  const indent = depth * 20
+
+  if (node.type === 'folder') {
+    return (
+      <div>
+        <div
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex cursor-pointer items-center gap-2 px-4 py-2.5 hover:bg-zinc-50 dark:hover:bg-white/5"
+        >
+          <div style={{ paddingLeft: `${indent}px` }} className="flex items-center gap-2">
+            {isOpen ? (
+              <ChevronDown className="size-4 text-zinc-400" />
+            ) : (
+              <ChevronRight className="size-4 text-zinc-400" />
+            )}
+            <Folder className="size-5 text-amber-500" />
+            <span className="font-medium text-zinc-950 dark:text-white">{node.name}</span>
+          </div>
+          <div className="ml-auto flex items-center gap-6 pr-4 text-xs text-zinc-500 dark:text-zinc-400">
+            <span className="hidden sm:block">{node.lastCommit}</span>
+            <span>{node.updated}</span>
+          </div>
+        </div>
+
+        {isOpen && node.children && (
+          <div>
+            {node.children.map((child, idx) => (
+              <FileTreeNode
+                key={idx}
+                node={child}
+                repoName={repoName}
+                depth={depth + 1}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // File node
+  return (
+    <Link
+      href={`/repositories/${repoName}/blob/main/${node.name}`}
+      className="flex items-center gap-2 px-4 py-2.5 hover:bg-zinc-50 dark:hover:bg-white/5"
+      style={{ paddingLeft: `${indent + 24}px` }}
+    >
+      <FileText className="size-5 text-zinc-400" />
+      <span className="font-medium text-zinc-950 hover:underline dark:text-white">{node.name}</span>
+
+      <div className="ml-auto flex items-center gap-6 pr-4 text-xs text-zinc-500 dark:text-zinc-400">
+        <span className="hidden sm:block">{node.lastCommit}</span>
+        <span>{node.updated}</span>
+      </div>
+    </Link>
   )
 }
