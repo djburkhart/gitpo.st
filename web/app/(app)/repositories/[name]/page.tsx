@@ -6,8 +6,10 @@ import { Text } from '@/components/catalyst/text'
 import { Button } from '@/components/catalyst/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/catalyst/table'
 import { Badge } from '@/components/catalyst/badge'
-import { Folder, FileText, GitBranch, ChevronRight, ChevronDown } from 'lucide-react'
+import { Folder, FileText, GitBranch } from 'lucide-react'
 import Link from 'next/link'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 interface RepoPageProps {
   params: Promise<{ name: string }>
@@ -75,6 +77,23 @@ MIT
 
 export default function RepositoryPage({ params }: RepoPageProps) {
   const { name } = use(params)
+  const [currentPath, setCurrentPath] = useState('')
+
+  // Get contents of the current directory
+  const currentFiles = getFilesAtPath(fileTree, currentPath)
+
+  const handleNavigate = (newPath: string) => {
+    setCurrentPath(newPath)
+  }
+
+  const handleGoUp = () => {
+    if (!currentPath) return
+    const parts = currentPath.split('/')
+    parts.pop()
+    setCurrentPath(parts.join('/'))
+  }
+
+  const breadcrumbs = currentPath ? currentPath.split('/') : []
 
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
@@ -89,41 +108,110 @@ export default function RepositoryPage({ params }: RepoPageProps) {
           <Button plain size="sm">Switch branch</Button>
         </div>
 
-        {/* File Browser - Improved Tree View */}
+        {/* File Browser with Navigation */}
         <div className="rounded-xl border border-zinc-200 bg-white shadow-xs dark:border-white/10 dark:bg-zinc-900">
-          {/* Breadcrumb + Actions */}
+          {/* Breadcrumbs + Actions */}
           <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-white/10">
-            <div className="flex items-center gap-2 font-mono text-sm">
-              <span className="text-zinc-500 dark:text-zinc-400">gitpo.st / {name}</span>
+            <div className="flex items-center gap-1 font-mono text-sm">
+              <Link 
+                href={`/repositories/${name}`} 
+                onClick={() => setCurrentPath('')}
+                className="text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white"
+              >
+                {name}
+              </Link>
               <span className="text-zinc-400 dark:text-zinc-600">/</span>
               <span className="text-zinc-950 dark:text-white">main</span>
+              {breadcrumbs.map((part, index) => {
+                const pathUpToHere = breadcrumbs.slice(0, index + 1).join('/')
+                return (
+                  <span key={index} className="flex items-center">
+                    <span className="text-zinc-400 dark:text-zinc-600">/</span>
+                    <button
+                      onClick={() => setCurrentPath(pathUpToHere)}
+                      className="text-zinc-950 hover:underline dark:text-white"
+                    >
+                      {part}
+                    </button>
+                  </span>
+                )
+              })}
             </div>
             <Button plain size="sm">Add file</Button>
           </div>
 
-          {/* File Tree */}
-          <div className="divide-y divide-zinc-200 dark:divide-white/10">
-            {fileTree.map((node, index) => (
-              <FileTreeNode
-                key={index}
-                node={node}
-                repoName={name}
-                depth={0}
-              />
-            ))}
+          {/* File List */}
+          <div className="divide-y divide-zinc-200 dark:divide-white/10 text-sm">
+            {/* Go up one level */}
+            {currentPath && (
+              <div 
+                onClick={handleGoUp}
+                className="flex cursor-pointer items-center gap-3 px-4 py-2.5 hover:bg-zinc-50 dark:hover:bg-white/5 text-zinc-600 dark:text-zinc-400"
+              >
+                <span className="font-mono">..</span>
+                <span className="text-xs">Go to parent directory</span>
+              </div>
+            )}
+
+            {currentFiles.length === 0 && (
+              <div className="px-4 py-6 text-center text-zinc-500 dark:text-zinc-400">
+                This folder is empty.
+              </div>
+            )}
+
+            {currentFiles.map((node, index) => {
+              const fullPath = currentPath ? `${currentPath}/${node.name}` : node.name
+              const isFolder = node.type === 'folder'
+
+              return (
+                <div 
+                  key={index}
+                  onClick={() => isFolder && handleNavigate(fullPath)}
+                  className={`flex items-center gap-3 px-4 py-2.5 ${isFolder ? 'cursor-pointer hover:bg-zinc-50 dark:hover:bg-white/5' : 'hover:bg-zinc-50 dark:hover:bg-white/5'}`}
+                >
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    {isFolder ? (
+                      <Folder className="size-5 text-amber-500 shrink-0" />
+                    ) : (
+                      <FileText className="size-5 text-zinc-400 shrink-0" />
+                    )}
+                    {isFolder ? (
+                      <span className="font-medium text-zinc-950 dark:text-white truncate">
+                        {node.name}
+                      </span>
+                    ) : (
+                      <Link 
+                        href={`/repositories/${name}/blob/main/${fullPath}`}
+                        className="font-medium text-zinc-950 hover:underline dark:text-white truncate"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {node.name}
+                      </Link>
+                    )}
+                  </div>
+
+                  <div className="hidden md:block text-xs text-zinc-500 dark:text-zinc-400 w-64 truncate">
+                    {node.lastCommit}
+                  </div>
+                  <div className="text-xs text-zinc-500 dark:text-zinc-400 w-20 text-right">
+                    {node.updated}
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
 
-        {/* README Preview */}
+        {/* README Preview - Proper Markdown Rendering */}
         <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-xs dark:border-white/10 dark:bg-zinc-900">
           <div className="mb-4 flex items-center justify-between">
             <Heading level={3}>README.md</Heading>
             <Button plain size="sm">Edit</Button>
           </div>
-          <div className="prose prose-sm dark:prose-invert max-w-none">
-            <pre className="whitespace-pre-wrap text-sm text-zinc-700 dark:text-zinc-300 font-mono bg-zinc-50 dark:bg-zinc-800 p-4 rounded-lg overflow-auto">
+          <div className="prose prose-sm dark:prose-invert max-w-none text-zinc-700 dark:text-zinc-300">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {mockReadme(name)}
-            </pre>
+            </ReactMarkdown>
           </div>
         </div>
       </div>
@@ -170,72 +258,18 @@ export default function RepositoryPage({ params }: RepoPageProps) {
   )
 }
 
-// Recursive File Tree Node Component
-function FileTreeNode({
-  node,
-  repoName,
-  depth = 0,
-}: {
-  node: FileNode
-  repoName: string
-  depth?: number
-}) {
-  const [isOpen, setIsOpen] = useState(depth < 1) // Auto-expand top level
+// Helper: Get files at a specific path from the tree
+function getFilesAtPath(tree: FileNode[], path: string): FileNode[] {
+  if (!path) return tree
 
-  const indent = depth * 20
+  const parts = path.split('/')
+  let current = tree
 
-  if (node.type === 'folder') {
-    return (
-      <div>
-        <div
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex cursor-pointer items-center gap-2 px-4 py-2.5 hover:bg-zinc-50 dark:hover:bg-white/5"
-        >
-          <div style={{ paddingLeft: `${indent}px` }} className="flex items-center gap-2">
-            {isOpen ? (
-              <ChevronDown className="size-4 text-zinc-400" />
-            ) : (
-              <ChevronRight className="size-4 text-zinc-400" />
-            )}
-            <Folder className="size-5 text-amber-500" />
-            <span className="font-medium text-zinc-950 dark:text-white">{node.name}</span>
-          </div>
-          <div className="ml-auto flex items-center gap-6 pr-4 text-xs text-zinc-500 dark:text-zinc-400">
-            <span className="hidden sm:block">{node.lastCommit}</span>
-            <span>{node.updated}</span>
-          </div>
-        </div>
-
-        {isOpen && node.children && (
-          <div>
-            {node.children.map((child, idx) => (
-              <FileTreeNode
-                key={idx}
-                node={child}
-                repoName={repoName}
-                depth={depth + 1}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    )
+  for (const part of parts) {
+    const found = current.find(node => node.name === part && node.type === 'folder')
+    if (!found || !found.children) return []
+    current = found.children
   }
 
-  // File node
-  return (
-    <Link
-      href={`/repositories/${repoName}/blob/main/${node.name}`}
-      className="flex items-center gap-2 px-4 py-2.5 hover:bg-zinc-50 dark:hover:bg-white/5"
-      style={{ paddingLeft: `${indent + 24}px` }}
-    >
-      <FileText className="size-5 text-zinc-400" />
-      <span className="font-medium text-zinc-950 hover:underline dark:text-white">{node.name}</span>
-
-      <div className="ml-auto flex items-center gap-6 pr-4 text-xs text-zinc-500 dark:text-zinc-400">
-        <span className="hidden sm:block">{node.lastCommit}</span>
-        <span>{node.updated}</span>
-      </div>
-    </Link>
-  )
+  return current
 }
