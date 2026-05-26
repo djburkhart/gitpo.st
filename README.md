@@ -92,7 +92,24 @@ Terraform modules will be the primary "install" method. Users own their GCP proj
 
 ## 🛠 Local Development & Quickstart
 
-(Coming soon — will include `make dev` using kind + Tilt or skaffold for the full stack.)
+### Frontend (web/)
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+The UI is built with **Next.js + Tailwind + Headless UI + the Catalyst UI Kit**.
+
+See [web/README.md](web/README.md) for more details.
+
+### Backend (hub/)
+
+```bash
+cd hub
+go run .
+```
 
 ## 📦 Deployment on GCP
 
