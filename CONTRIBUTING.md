@@ -51,15 +51,25 @@ We publish to GitHub Container Registry (`ghcr.io/djburkhart/gogs`, etc.) and/or
 ## Pull Request Process
 
 1. Fork the repo and create your branch from `main`.
-2. If you are changing behavior, open an issue or discussion first for alignment.
+2. If you are changing behavior, open an issue or discussion first for alignment. We have templates for [bugs](.github/ISSUE_TEMPLATE/bug_report.yml) and [features](.github/ISSUE_TEMPLATE/feature_request.yml).
 3. Keep PRs focused. Large refactors should be discussed.
 4. Update documentation for user-facing changes.
 5. Ensure `terraform validate` and any linters pass (CI will check).
-6. Request review. We aim for friendly, constructive feedback.
+6. Fill out the [Pull Request template](.github/PULL_REQUEST_TEMPLATE.md).
+7. Request review. We aim for friendly, constructive feedback.
 
 Because we maintain forks/custom images of Gogs and GoCD, please call out in the PR description:
 - Whether the change should also be proposed upstream.
 - Any long-term maintenance burden introduced.
+
+## Reporting Issues
+
+We use structured templates to make triaging faster:
+
+- [Bug Report](.github/ISSUE_TEMPLATE/bug_report.yml)
+- [Feature Request](.github/ISSUE_TEMPLATE/feature_request.yml)
+
+For security issues, please see [SECURITY.md](SECURITY.md) instead of opening a public issue.
 
 ## Project Structure (MVP)
 

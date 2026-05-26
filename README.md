@@ -109,7 +109,12 @@ High-level:
 
 We welcome contributions of all kinds — docs, Terraform improvements, Helm values, Go code for the hub, UI polish, sample pipelines, testing on real GCP workloads.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+**Before contributing**, please read:
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- [SECURITY.md](SECURITY.md)
+
+We use GitHub issue and pull request templates to help keep things organized.
 
 Because we fork/customize Gogs and GoCD, contributions that make sense upstream will be encouraged (and we will maintain clear patch lists).
 

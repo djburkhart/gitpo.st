@@ -1,0 +1,65 @@
+name: Feature request
+description: Suggest a new feature or improvement for gitpo.st
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement to gitpo.st!
+
+        Please check existing [discussions](https://github.com/djburkhart/gitpo.st/discussions) and [issues](https://github.com/djburkhart/gitpo.st/issues) first.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Is your feature request related to a problem?
+      description: A clear description of the problem this feature would solve.
+      placeholder: I'm always frustrated when ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Describe the solution you'd like
+      description: A clear description of what you want to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Describe alternatives you've considered
+      description: Any alternative solutions or workarounds you've thought about.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Which part of the project is this related to?
+      multiple: true
+      options:
+        - Terraform (GCP infrastructure)
+        - Kubernetes / Helm manifests
+        - gitpo.st-hub (Go service)
+        - Docker images / branding (Gogs or GoCD)
+        - Documentation
+        - Examples / Sample pipelines
+        - Developer experience / Tooling
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add any other context, mockups, or references here.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/djburkhart/gitpo.st/blob/main/CODE_OF_CONDUCT.md).
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true
