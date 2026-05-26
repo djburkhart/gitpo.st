@@ -1,0 +1,65 @@
+# Example values for gitpo.st on GKE (development / small team)
+# Copy and customize.
+
+global:
+  imageRegistry: "ghcr.io/djburkhart"   # or your Artifact Registry
+  imagePullSecrets: []
+  storageClass: "standard-rwo"          # or "premium-rwo", filestore for HA
+
+# === Gogs (Git) ===
+gogs:
+  enabled: true
+  replicaCount: 1                       # HA requires shared storage (Filestore)
+  image:
+    repository: gitpo.st/gogs
+    tag: "main"                         # or specific version
+    pullPolicy: Always
+  ingress:
+    enabled: true
+    host: git.gitpost.example.com
+    tls: true
+  persistence:
+    size: 50Gi
+  # Reverse proxy auth (used with oauth2-proxy)
+  config:
+    auth:
+      mode: "reverse_proxy"
+      # See Gogs docs for header names
+
+# === GoCD ===
+gocd:
+  enabled: true
+  server:
+    replicaCount: 1
+    image:
+      repository: gitpo.st/gocd-server
+      tag: "main"
+  # Elastic agents on GKE (highly recommended)
+  elasticAgents:
+    enabled: true
+    # agent image will also be our branded one
+  ingress:
+    enabled: true
+    host: ci.gitpost.example.com
+
+# === gitpo.st Hub (integration layer) ===
+hub:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: gitpo.st/hub
+    tag: "main"
+  # Gogs and GoCD API endpoints (internal cluster DNS)
+  config:
+    gogsUrl: "http://gitpost-gogs.gitpost.svc.cluster.local:3000"
+    gocdUrl: "http://gitpost-gocd-server.gitpost.svc.cluster.local:8153/go"
+
+# === SSO ===
+oauth2Proxy:
+  enabled: true
+  # Configure your Google OAuth client here (or via Secret)
+  # google:
+  #   clientID: "..."
+  #   clientSecret: "..."
+  #   allowedDomains: ["yourcompany.com"]
+  #   ...

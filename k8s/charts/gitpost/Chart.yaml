@@ -1,0 +1,18 @@
+apiVersion: v2
+name: gitpost
+description: Umbrella chart for gitpo.st (Gogs + GoCD + Hub + SSO on GKE)
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+
+dependencies:
+  # Official or community charts we rely on (versions to be pinned after testing)
+  # - name: gogs
+  #   version: "x.y.z"
+  #   repository: "https://..."
+  # - name: gocd
+  #   version: "..."
+  #   repository: "https://gocd.github.io/helm-chart"
+  # - name: oauth2-proxy
+  #   version: "..."
+  #   repository: "https://oauth2-proxy.github.io/manifests"

@@ -1,0 +1,8 @@
+# Copy to terraform.tfvars and fill in real values.
+# Never commit the real file.
+
+project_id = "my-gitpost-project-123456"
+region     = "us-central1"
+
+# Optional overrides
+# cluster_name = "gitpost-dev"

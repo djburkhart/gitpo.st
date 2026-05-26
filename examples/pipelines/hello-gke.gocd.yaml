@@ -1,0 +1,40 @@
+# Example GoCD pipeline definition for the hello-gke sample
+# This can live inside the repo itself (.gocd.yaml) or in a separate config repo.
+
+format_version: 10
+
+pipelines:
+  hello-gke:
+    group: samples
+    label_template: "${git[:8]}"
+    materials:
+      git-repo:
+        git: https://git.yourdomain.com/your-org/hello-gke.git   # Will be your Gogs URL
+        branch: main
+        auto_update: true
+    stages:
+      - build:
+          jobs:
+            build:
+              elastic_profile_id: gocd-gke-agent   # or whatever your elastic profile is called
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - |
+                        echo "Building hello-gke..."
+                        docker build -t $ARTIFACT_REGISTRY/hello-gke:$GO_PIPELINE_COUNTER .
+                        docker push $ARTIFACT_REGISTRY/hello-gke:$GO_PIPELINE_COUNTER
+      - deploy:
+          jobs:
+            deploy:
+              tasks:
+                - exec:
+                    command: /bin/bash
+                    arguments:
+                      - -c
+                      - |
+                        echo "Deploying to GKE via kubectl or Cloud Deploy..."
+                        # Example: update a deployment image
+                        # kubectl set image deployment/hello-gke hello-gke=$ARTIFACT_REGISTRY/hello-gke:$GO_PIPELINE_COUNTER -n default
