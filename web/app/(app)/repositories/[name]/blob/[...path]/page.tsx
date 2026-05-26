@@ -4,9 +4,8 @@ import { use } from 'react'
 import { Button } from '@/components/catalyst/button'
 import Link from 'next/link'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+import { vs, vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { MarkdownRenderer } from '@/components/markdown-renderer'
 
 interface BlobPageProps {
   params: Promise<{ name: string; path: string[] }>
@@ -59,6 +58,10 @@ export default function FileViewer({ params }: BlobPageProps) {
   const language = getLanguage(fileName)
   const isMarkdown = fileName.endsWith('.md') || fileName === 'README.md'
 
+  // Visual Studio style themes
+  const isDark = typeof window !== 'undefined' && document.documentElement.classList.contains('dark')
+  const codeTheme = isDark ? vscDarkPlus : vs
+
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
@@ -82,15 +85,13 @@ export default function FileViewer({ params }: BlobPageProps) {
 
         <div className="overflow-auto text-sm">
           {isMarkdown ? (
-            <div className="prose prose-sm dark:prose-invert max-w-none p-6">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {content}
-              </ReactMarkdown>
+            <div className="p-6">
+              <MarkdownRenderer>{content}</MarkdownRenderer>
             </div>
           ) : (
             <SyntaxHighlighter
               language={language}
-              style={oneDark}
+              style={codeTheme}
               customStyle={{
                 margin: 0,
                 padding: '1rem',

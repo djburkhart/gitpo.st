@@ -8,8 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/catalyst/badge'
 import { Folder, FileText, GitBranch } from 'lucide-react'
 import Link from 'next/link'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+import { MarkdownRenderer } from '@/components/markdown-renderer'
 
 interface RepoPageProps {
   params: Promise<{ name: string }>
@@ -208,11 +207,9 @@ export default function RepositoryPage({ params }: RepoPageProps) {
             <Heading level={3}>README.md</Heading>
             <Button plain size="sm">Edit</Button>
           </div>
-          <div className="prose prose-sm dark:prose-invert max-w-none text-zinc-700 dark:text-zinc-300">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {mockReadme(name)}
-            </ReactMarkdown>
-          </div>
+          <MarkdownRenderer>
+            {mockReadme(name)}
+          </MarkdownRenderer>
         </div>
       </div>
 
