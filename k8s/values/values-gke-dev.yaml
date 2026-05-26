@@ -16,7 +16,7 @@ gogs:
     pullPolicy: Always
   ingress:
     enabled: true
-    host: git.gitpost.example.com
+    host: git.gitpo.st.example.com
     tls: true
   persistence:
     size: 50Gi
@@ -40,7 +40,7 @@ gocd:
     # agent image will also be our branded one
   ingress:
     enabled: true
-    host: ci.gitpost.example.com
+    host: ci.gitpo.st.example.com
 
 # === gitpo.st Hub (integration layer) ===
 hub:
