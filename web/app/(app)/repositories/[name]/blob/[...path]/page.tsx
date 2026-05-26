@@ -5,6 +5,20 @@ import { Button } from '@/components/catalyst/button'
 import Link from 'next/link'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vs, vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { normalizeLanguage } from '@/lib/language'
+
+// Register common languages for reliable per-language syntax highlighting
+import 'react-syntax-highlighter/dist/esm/languages/prism/javascript'
+import 'react-syntax-highlighter/dist/esm/languages/prism/typescript'
+import 'react-syntax-highlighter/dist/esm/languages/prism/tsx'
+import 'react-syntax-highlighter/dist/esm/languages/prism/jsx'
+import 'react-syntax-highlighter/dist/esm/languages/prism/go'
+import 'react-syntax-highlighter/dist/esm/languages/prism/python'
+import 'react-syntax-highlighter/dist/esm/languages/prism/bash'
+import 'react-syntax-highlighter/dist/esm/languages/prism/json'
+import 'react-syntax-highlighter/dist/esm/languages/prism/yaml'
+import 'react-syntax-highlighter/dist/esm/languages/prism/css'
+import 'react-syntax-highlighter/dist/esm/languages/prism/sql'
 import { MarkdownRenderer } from '@/components/markdown-renderer'
 
 interface BlobPageProps {
@@ -34,20 +48,7 @@ export default app`
 
 function getLanguage(fileName: string): string {
   const ext = fileName.split('.').pop()?.toLowerCase() || ''
-  const map: Record<string, string> = {
-    ts: 'typescript',
-    tsx: 'tsx',
-    js: 'javascript',
-    jsx: 'jsx',
-    json: 'json',
-    md: 'markdown',
-    yml: 'yaml',
-    yaml: 'yaml',
-    css: 'css',
-    html: 'html',
-    sh: 'bash',
-  }
-  return map[ext] || 'text'
+  return normalizeLanguage(ext)
 }
 
 export default function FileViewer({ params }: BlobPageProps) {

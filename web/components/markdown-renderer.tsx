@@ -5,6 +5,20 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vs, vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { normalizeLanguage } from '@/lib/language'
+
+// Register common languages for reliable syntax highlighting (including function tokens)
+import 'react-syntax-highlighter/dist/esm/languages/prism/javascript'
+import 'react-syntax-highlighter/dist/esm/languages/prism/typescript'
+import 'react-syntax-highlighter/dist/esm/languages/prism/tsx'
+import 'react-syntax-highlighter/dist/esm/languages/prism/jsx'
+import 'react-syntax-highlighter/dist/esm/languages/prism/go'
+import 'react-syntax-highlighter/dist/esm/languages/prism/python'
+import 'react-syntax-highlighter/dist/esm/languages/prism/bash'
+import 'react-syntax-highlighter/dist/esm/languages/prism/json'
+import 'react-syntax-highlighter/dist/esm/languages/prism/yaml'
+import 'react-syntax-highlighter/dist/esm/languages/prism/css'
+import 'react-syntax-highlighter/dist/esm/languages/prism/sql'
 
 interface MarkdownRendererProps {
   children: string
@@ -19,6 +33,8 @@ export function MarkdownRenderer({ children, className = '' }: MarkdownRendererP
 
   const codeTheme = isDark ? vscDarkPlus : vs
 
+  // Use shared normalizer for consistent language support across the app
+
   return (
     <div className={`prose prose-zinc dark:prose-invert max-w-none text-zinc-800 dark:text-zinc-200 prose-headings:font-semibold prose-headings:tracking-tight prose-h1:text-3xl prose-h1:mt-8 prose-h1:mb-4 prose-h2:text-2xl prose-h2:mt-6 prose-h2:mb-3 prose-h3:text-xl prose-h3:mt-5 prose-h3:mb-2 prose-p:my-3 prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:font-medium hover:prose-a:underline prose-strong:font-semibold prose-code:bg-transparent prose-code:before:content-[''] prose-code:after:content-[''] prose-pre:bg-transparent prose-pre:p-0 prose-ul:my-3 prose-ol:my-3 prose-li:my-1 prose-blockquote:border-l-4 prose-blockquote:border-zinc-300 dark:prose-blockquote:border-white/20 prose-blockquote:pl-4 prose-blockquote:italic prose-table:border prose-table:border-zinc-200 dark:prose-table:border-white/10 ${className}`}>
       <ReactMarkdown
@@ -26,7 +42,8 @@ export function MarkdownRenderer({ children, className = '' }: MarkdownRendererP
         components={{
           code({ node, inline, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || '')
-            const language = match ? match[1] : 'text'
+            const rawLanguage = match ? match[1] : 'text'
+            const language = normalizeLanguage(rawLanguage)
 
             if (!inline && match) {
               return (
