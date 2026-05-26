@@ -188,12 +188,12 @@ export default function PipelineEditorPage({ params }: PipelineEditorProps) {
   }
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] flex-col">
-      {/* Top Bar */}
-      <div className="flex items-center justify-between border-b border-zinc-200 pb-4 dark:border-white/10">
+    <div className="space-y-6">
+      {/* Header - consistent with other dashboard pages */}
+      <div className="flex items-center justify-between">
         <div>
-          <Heading>Pipeline Editor</Heading>
-          <div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
+          <Heading>Edit Pipeline</Heading>
+          <div className="mt-1 flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
             <span className="font-mono">{name}</span>
             <Badge color="green">Active</Badge>
           </div>
@@ -202,38 +202,17 @@ export default function PipelineEditorPage({ params }: PipelineEditorProps) {
         <div className="flex items-center gap-3">
           <Button plain>
             <Play className="size-4" />
-            Trigger Pipeline
+            Trigger
           </Button>
           <Button color="dark">
             <Save className="size-4" />
-            Save Changes
+            Save
           </Button>
-        </div>
-      </div>
-
-      {/* Materials Section */}
-      <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-5 shadow-xs dark:border-white/10 dark:bg-zinc-900">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="font-semibold">Materials</div>
-            <Text className="text-sm">Git repositories that trigger this pipeline</Text>
-          </div>
-          <Button plain size="sm">+ Add Material</Button>
-        </div>
-
-        <div className="mt-4 flex gap-3">
-          <div className="flex items-center gap-3 rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm dark:border-white/10 dark:bg-zinc-950">
-            <GitBranch className="size-4 text-emerald-500" />
-            <div>
-              <div className="font-medium">api-gateway</div>
-              <div className="text-xs text-zinc-500">main branch • gitpo.st</div>
-            </div>
-          </div>
         </div>
       </div>
 
       {/* Visual Stage Editor */}
-      <div className="mt-6 flex-1">
+      <div>
         <div className="mb-3 flex items-center justify-between">
           <div className="font-semibold text-lg">Stages</div>
           <Button onClick={() => setIsAddStageOpen(true)} color="dark" size="sm">
@@ -310,53 +289,141 @@ export default function PipelineEditorPage({ params }: PipelineEditorProps) {
         </div>
       </div>
 
-      {/* Right Panel - Job Details */}
-      {selectedJob && (
-        <div className="fixed bottom-0 right-0 top-0 w-96 border-l border-zinc-200 bg-white p-6 shadow-xl dark:border-white/10 dark:bg-zinc-900 overflow-auto">
-          <div className="flex items-center justify-between">
-            <Heading level={3}>{selectedJob.job.name}</Heading>
-            <Button plain size="sm" onClick={() => setSelectedJob(null)}>
-              Close
+      {/* Main Content Area - Two columns when job selected */}
+      <div className={`grid gap-6 ${selectedJob ? 'lg:grid-cols-12' : ''}`}>
+        {/* Stages Visual Editor */}
+        <div className={selectedJob ? 'lg:col-span-7' : ''}>
+          <div className="mb-3 flex items-center justify-between">
+            <div className="font-semibold text-lg">Stages</div>
+            <Button onClick={() => setIsAddStageOpen(true)} color="dark" size="sm">
+              <Plus className="size-4" /> Add Stage
             </Button>
           </div>
 
-          <div className="mt-6">
-            <div className="mb-2 flex items-center justify-between text-sm font-medium">
-              <span>Tasks</span>
-              <Button 
-                size="sm" 
-                plain
-                onClick={() => addTaskToJob(selectedJob.stageId, selectedJob.job.id)}
-              >
-                + Add Task
-              </Button>
-            </div>
-
-            <div className="space-y-2">
-              {selectedJob.job.tasks.map((task) => (
+          <div className="flex gap-4 overflow-x-auto pb-4">
+            {stages.map((stage, index) => (
                 <div
-                  key={task.id}
-                  className="rounded-xl border border-zinc-200 bg-white p-4 text-sm dark:border-white/10 dark:bg-zinc-950"
+                  key={stage.id}
+                  className="min-w-[280px] flex-shrink-0 rounded-2xl border border-zinc-200 bg-white shadow-xs dark:border-white/10 dark:bg-zinc-900"
                 >
-                  <div className="flex items-center gap-2 font-medium">
-                    <Badge color="zinc">{task.type}</Badge>
-                    {task.description}
+                  {/* Stage Header */}
+                  <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-white/10">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-zinc-950 text-xs font-semibold text-white dark:bg-white dark:text-zinc-950">
+                        {index + 1}
+                      </div>
+                      <div className="font-semibold text-lg tracking-tight">{stage.name}</div>
+                    </div>
+                    <button
+                      onClick={() => deleteStage(stage.id)}
+                      className="text-zinc-400 hover:text-red-500"
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
                   </div>
-                  {task.command && (
-                    <pre className="mt-2 rounded bg-zinc-100 p-2 font-mono text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-                      {task.command}
-                    </pre>
-                  )}
+
+                  {/* Jobs */}
+                  <div className="space-y-3 p-4">
+                    {stage.jobs.length === 0 && (
+                      <div className="rounded-lg border border-dashed border-zinc-200 p-4 text-center text-sm text-zinc-500 dark:border-white/10 dark:text-zinc-400">
+                        No jobs yet
+                      </div>
+                    )}
+
+                    {stage.jobs.map((job) => (
+                      <div
+                        key={job.id}
+                        onClick={() => setSelectedJob({ stageId: stage.id, job })}
+                        className={`cursor-pointer rounded-xl border p-3 transition ${
+                          selectedJob?.job.id === job.id 
+                            ? 'border-zinc-950 bg-zinc-50 dark:border-white dark:bg-zinc-800' 
+                            : 'border-zinc-200 bg-white hover:border-zinc-300 dark:border-white/10 dark:bg-zinc-950 dark:hover:border-white/20'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="font-medium">{job.name}</div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              deleteJob(stage.id, job.id)
+                            }}
+                            className="text-zinc-400 hover:text-red-500"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </div>
+
+                        <div className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                          {job.tasks.length} task{job.tasks.length !== 1 ? 's' : ''}
+                        </div>
+                      </div>
+                    ))}
+
+                    <Button
+                      plain
+                      size="sm"
+                      className="w-full justify-center"
+                      onClick={() => addJobToStage(stage.id)}
+                    >
+                      <Plus className="size-4" /> Add Job
+                    </Button>
+                  </div>
                 </div>
               ))}
-
-              {selectedJob.job.tasks.length === 0 && (
-                <div className="text-sm text-zinc-500">No tasks defined yet.</div>
-              )}
             </div>
           </div>
         </div>
-      )}
+
+        {/* Job Details Panel (in flow, not fixed) */}
+        {selectedJob && (
+          <div className="lg:col-span-5">
+            <div className="sticky top-6 rounded-2xl border border-zinc-200 bg-white p-6 shadow-xs dark:border-white/10 dark:bg-zinc-900">
+              <div className="flex items-center justify-between">
+                <Heading level={3}>{selectedJob.job.name}</Heading>
+                <Button plain size="sm" onClick={() => setSelectedJob(null)}>
+                  Close
+                </Button>
+              </div>
+
+              <div className="mt-6">
+                <div className="mb-2 flex items-center justify-between text-sm font-medium">
+                  <span>Tasks</span>
+                  <Button 
+                    size="sm" 
+                    plain
+                    onClick={() => addTaskToJob(selectedJob.stageId, selectedJob.job.id)}
+                  >
+                    + Add Task
+                  </Button>
+                </div>
+
+                <div className="space-y-2">
+                  {selectedJob.job.tasks.map((task) => (
+                    <div
+                      key={task.id}
+                      className="rounded-xl border border-zinc-200 bg-white p-4 text-sm dark:border-white/10 dark:bg-zinc-950"
+                    >
+                      <div className="flex items-center gap-2 font-medium">
+                        <Badge color="zinc">{task.type}</Badge>
+                        {task.description}
+                      </div>
+                      {task.command && (
+                        <pre className="mt-2 rounded bg-zinc-100 p-2 font-mono text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                          {task.command}
+                        </pre>
+                      )}
+                    </div>
+                  ))}
+
+                  {selectedJob.job.tasks.length === 0 && (
+                    <div className="text-sm text-zinc-500">No tasks defined yet.</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Add Stage Dialog */}
       <Dialog open={isAddStageOpen} onClose={() => setIsAddStageOpen(false)}>
