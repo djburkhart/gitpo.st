@@ -100,7 +100,9 @@ npm install
 npm run dev
 ```
 
-The UI is built with **Next.js + Tailwind + Headless UI + the Catalyst UI Kit**.
+The UI is built with **Next.js + Tailwind + Headless UI + the Catalyst UI Kit** (Tailwind Plus).
+
+**Note:** The Catalyst components are commercial and not committed to this repo. See [web/README.md](web/README.md) for setup instructions (requires a Tailwind Plus license).
 
 See [web/README.md](web/README.md) for more details.
 

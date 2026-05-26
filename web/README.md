@@ -5,7 +5,7 @@ Modern frontend for gitpo.st built with:
 - **Next.js 15** (App Router)
 - **Tailwind CSS v4**
 - **Headless UI**
-- **Catalyst UI Kit** (Tailwind Labs component library)
+- **Catalyst UI Kit** (Tailwind Labs component library — see License section below)
 
 ## Getting started
 
@@ -24,29 +24,18 @@ The dashboard is available at `/dashboard` (uses a route group).
 ```
 web/
 ├── app/
-│   ├── (app)/              # Protected dashboard area
+│   ├── (app)/              # Protected dashboard area (uses SidebarLayout)
 │   │   ├── dashboard/
 │   │   ├── repositories/
 │   │   ├── pipelines/
 │   │   ├── settings/
-│   │   └── layout.tsx      # Uses AppSidebar + Catalyst SidebarLayout
+│   │   └── layout.tsx
 │   ├── layout.tsx
 │   └── page.tsx            # Public landing page
 ├── components/
-│   └── catalyst/           # Copied from Catalyst UI Kit (typescript version)
+│   ├── app-sidebar.tsx     # Custom gitpo.st sidebar
+│   └── catalyst/           # Catalyst UI Kit components (see License section)
 ├── ...
-```
-
-## Using Catalyst Components
-
-All components are in `components/catalyst/`. They are designed to be copied and customized.
-
-Example:
-
-```tsx
-import { Button } from '@/components/catalyst/button'
-import { Input } from '@/components/catalyst/input'
-import { Field, Label } from '@/components/catalyst/fieldset'
 ```
 
 ## Design Goals
@@ -65,6 +54,27 @@ Planned integrations:
 - Gogs API (repos, webhooks, users)
 - GoCD API (pipelines, builds, agents)
 
-## License Note
+## License & Catalyst UI Kit
 
-The Catalyst components are from Tailwind UI Plus and are used under the license purchased by the team.
+The UI is designed around the excellent **Catalyst UI Kit** from Tailwind Labs (part of Tailwind Plus).
+
+**Important:** The Catalyst components are commercial software and are **not open source**.
+
+### How to set up Catalyst locally
+
+1. Purchase a Tailwind Plus license (https://tailwindcss.com/plus)
+2. Download the Catalyst UI Kit
+3. Copy the TypeScript components into this folder:
+   ```
+   web/components/catalyst/
+   ```
+4. Install the required dependencies (already in package.json):
+   ```bash
+   npm install @headlessui/react motion clsx
+   ```
+
+The `components/catalyst/` directory is **gitignored** and should never be committed to this repository.
+
+This approach keeps us compliant with the Tailwind Plus license while still allowing licensed users to build a high-quality interface.
+
+If you do not have a Tailwind Plus license, you can still run the project — the Catalyst components will simply be missing until you add them. We may explore fully open-source alternatives (such as shadcn/ui) in the future for better contributor accessibility.
