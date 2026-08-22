@@ -1,9 +1,13 @@
 # Dependabot configuration for gitpo.st
 # https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+#
+# Only list ecosystems whose directory actually contains the expected manifest.
+# Entries that point at empty or placeholder directories cause the
+# "Dependabot Updates" workflow to fail and retry indefinitely.
 
 version: 2
 updates:
-  # Go modules (gitpo.st-hub)
+  # Go modules — hub/go.mod
   - package-ecosystem: "gomod"
     directory: "/hub"
     schedule:
@@ -18,7 +22,7 @@ updates:
       - "dependencies"
       - "go"
 
-  # GitHub Actions
+  # GitHub Actions — .github/workflows/*
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -33,7 +37,7 @@ updates:
       - "dependencies"
       - "github-actions"
 
-  # Docker base images (we have multiple Dockerfiles)
+  # Docker — docker/gogs/Dockerfile
   - package-ecosystem: "docker"
     directory: "/docker/gogs"
     schedule:
@@ -48,6 +52,7 @@ updates:
       - "dependencies"
       - "docker"
 
+  # Docker — docker/gocd/Dockerfile
   - package-ecosystem: "docker"
     directory: "/docker/gocd"
     schedule:
@@ -62,8 +67,9 @@ updates:
       - "dependencies"
       - "docker"
 
+  # Docker — hub/Dockerfile (not docker/hub, which is only a pointer README)
   - package-ecosystem: "docker"
-    directory: "/docker/hub"
+    directory: "/hub"
     schedule:
       interval: "weekly"
       day: "tuesday"
@@ -76,9 +82,9 @@ updates:
       - "dependencies"
       - "docker"
 
-  # Terraform
+  # Terraform — terraform/environments/dev/main.tf
   - package-ecosystem: "terraform"
-    directory: "/terraform"
+    directory: "/terraform/environments/dev"
     schedule:
       interval: "weekly"
       day: "wednesday"
@@ -91,9 +97,9 @@ updates:
       - "dependencies"
       - "terraform"
 
-  # Root level (in case we add package.json, etc. later)
+  # npm — web/package.json + web/package-lock.json
   - package-ecosystem: "npm"
-    directory: "/"
+    directory: "/web"
     schedule:
       interval: "weekly"
       day: "wednesday"
@@ -105,5 +111,3 @@ updates:
     labels:
       - "dependencies"
       - "javascript"
-    # Only enable if/when we actually have a package.json at root
-    # Currently disabled by having no package files
