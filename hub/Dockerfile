@@ -3,7 +3,7 @@
 #   docker build -t gitpo.st/hub:latest -f hub/Dockerfile .
 
 # --- Build stage ---
-FROM golang:1.26-alpine AS builder
+FROM golang:1.27-alpine AS builder
 
 # Install git + ca-certificates for go modules (if any private deps in future)
 RUN apk add --no-cache git ca-certificates
